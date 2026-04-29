@@ -1,6 +1,6 @@
 # Victron BLE to BMPRO BC300 CAN Bridge
 
-An embedded C++ bridge running on an ESP32-S3 that seamlessly integrates a Victron SmartShunt into a BMPRO RV-C (JPro) ecosystem. It decrypts Victron's proprietary "Instant Readout" BLE advertisements and repackages them into 125kbps JPro CAN bus frames, completely emulating a physical BMPRO BC300 external shunt.
+An embedded C++ bridge running on an ESP32-S3 that seamlessly integrates a Victron SmartShunt into a BMPRO BP35/J35. It decrypts Victron's proprietary "Instant Readout" BLE advertisements and repackages them into 125kbps CAN bus frames, completely emulating a physical BMPRO BC300 external shunt.
 
 ## 🚀 Features
 * **No Extra Transceivers:** Uses the ESP32-S3's internal TWAI controller.
