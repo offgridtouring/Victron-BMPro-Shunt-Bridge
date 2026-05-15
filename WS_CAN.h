@@ -1,9 +1,8 @@
 #pragma once
 
 #include "driver/twai.h"
-#include <Arduino.h>
-#define TXD2 15
-#define RXD2 16
+#include "WS_GPIO.h"
+#include "WS_PCF85063.h"
 // Interval:
 #define TRANSMIT_RATE_MS      1000
 // Interval:
@@ -18,6 +17,7 @@
 #define CAN_Received_Len_MAX 1000  // Indicates the number of timers that can be set
 
 typedef struct {
+  datetime_t Time;                    // data time generator
   uint32_t CAN_ID = 0;
   uint8_t CAN_extd = 0;
   uint8_t* Read_Data;

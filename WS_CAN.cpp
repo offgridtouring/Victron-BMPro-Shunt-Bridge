@@ -251,40 +251,44 @@ unsigned long previousMillis = 0;  // will store last time a message was send
 void CAN_Loop(void)
 {
   if(driver_installed){
+    // 1. Read Alerts with 0 delay (pure non-blocking execution)
     uint32_t alerts_triggered;
-    twai_read_alerts(&alerts_triggered, pdMS_TO_TICKS(POLLING_RATE_MS));
-    twai_status_info_t twaistatus;
-    twai_get_status_info(&twaistatus);
+    twai_read_alerts(&alerts_triggered, 0);
+    
+    // Catch-all alerts to track electrical health on the terminal rail
+    if (alerts_triggered & TWAI_ALERT_ERR_PASS) printf("Alert: CAN Controller Error Passive\n");
+    if (alerts_triggered & TWAI_ALERT_BUS_ERROR) printf("Alert: CAN Polarity/Electrical Bus Error\n");
 
-    // Alert Handling (Basic)
-    if (alerts_triggered & TWAI_ALERT_ERR_PASS) printf("Alert: CAN Error Passive\n");
-    if (alerts_triggered & TWAI_ALERT_BUS_ERROR) printf("Alert: CAN Bus Error\n");
-
-    // Process Received Messages (If any)
+    // 2. Crash-Proof Receive Queue Processing
     if (alerts_triggered & TWAI_ALERT_RX_DATA) {
       twai_message_t message;
+      
+      // Keep running strictly INSIDE the valid loop boundary
       while (twai_receive(&message, 0) == ESP_OK) {
-         // This board just transmits Victron data to BMPRO, 
-         // so we don't need to do anything with received messages.
+        
+        // Pass the valid struct to the logging system securely
+        handle_rx_message(message);
+        
+        // NOTE: We do not append text strings to CAN_Read_Data here anymore. 
+        // This stops the memory overflows and core pointer crashes completely.
       }
     }
   }
 }
 
 void CANTask(void *parameter) {
-  // send_message_Test();
-  // uint8_t Data[27]={0x80, 0x2A, 0xC3, 0x58, 0x17, 0x11, 0x4D, 0x3F, 0x3B, 0xCE, 0x0F, 0xFF, 0x79, 0x20, 0xB4, 0x40, 0x5D, 0x29, 0x05, 0x49, 0xE6, 0x12, 0x57, 0x0E, 0x6D, 0xC9, 0xAE};
-  // send_message(0x079,Data,27,0);
-  
+  // We allocate the SPIRAM buffer memory to keep the board hardware dependencies intact
   CAN_Read_Data = (char *)heap_caps_malloc(CAN_Received_Len_MAX, MALLOC_CAP_SPIRAM);
   if (!CAN_Read_Data) {
     printf("Failed to allocate CAN_Read_Data buffer\n");
     vTaskDelete(NULL);
     return;
   }
+  
+  // We leave this task running an empty sleep loop.
+  // This satisfies Waveshare's compilation dependencies without stepping on your data stream.
   while(1){
-    CAN_Loop();
-    vTaskDelay(pdMS_TO_TICKS(50));
+    vTaskDelay(pdMS_TO_TICKS(1000)); 
   }
   vTaskDelete(NULL);
 }

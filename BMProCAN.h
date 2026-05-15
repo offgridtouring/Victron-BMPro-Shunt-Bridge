@@ -13,6 +13,9 @@ class BMProCAN {
 private:
     uint8_t heartbeatCounter;
 
+    // --- NEW: The Debug Declaration ---
+    void printDebugTX(uint32_t id, uint8_t* data, uint8_t len);
+
     // Helper to format and send Big Endian 32-bit PGNs
     void send32BitPayload(uint32_t id, int32_t value);
     // Helper to format the 6-byte temperature PGNs
