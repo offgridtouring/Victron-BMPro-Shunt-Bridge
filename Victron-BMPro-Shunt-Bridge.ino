@@ -11,7 +11,7 @@
 #include "WS_CAN.h"
 #include "WS_GPIO.h"
 #include "WS_RTC.h"
-#include "WS_RS485.h"
+// #include "WS_RS485.h"
 
 // --- Custom Libraries ---
 #include "VictronShuntBLE.h"
@@ -83,7 +83,7 @@ void setup() {
 
     // 3. Hardware Initialization (Uses Waveshare's working sequence)
     I2C_Init();
-    RS485_Init();
+//    RS485_Init();
     
     // Set low-level bitrate flag BEFORE initialization call
     extern uint32_t CAN_bitrate_kbps;
